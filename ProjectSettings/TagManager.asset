@@ -6,6 +6,9 @@ TagManager:
   tags:
   - line
   - HP
+  - ROAD
+  - OBSTACLE
+  - ORB
   layers:
   - Default
   - TransparentFX

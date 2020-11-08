@@ -21,22 +21,34 @@ public class camera : MonoBehaviour
             thirdPerson=!thirdPerson;
             if(thirdPerson)
                { 
-                   this.gameObject.transform.position = new Vector3(player.gameObject.transform.position.x-15,30,-40);
-                //    this.gameObject.transform.Rotate(0,90,0, Space.Self);
+                this.gameObject.transform.position = new Vector3(player.gameObject.transform.position.x-15,player.gameObject.transform.position.y+3,4);
+                this.gameObject.transform.Rotate(0,90,0,Space.World);
+
                }
             else
             {
-                this.gameObject.transform.position = new Vector3(player.gameObject.transform.position.x-15,player.gameObject.transform.position.y+3,4);
-                // this.gameObject.transform.Rotate(0,0,0);
+                this.gameObject.transform.position = new Vector3(player.gameObject.transform.position.x-15,30,-40);
+                this.gameObject.transform.Rotate(0,-90,0,Space.World);
 
             }
 
         }
-        if(player.gameObject.transform.position.y<10)
-            this.gameObject.transform.position = new Vector3(player.gameObject.transform.position.x-15,player.gameObject.transform.position.y+3,this.gameObject.transform.position.z);
-        else 
-            this.gameObject.transform.position = new Vector3(player.gameObject.transform.position.x-17,player.gameObject.transform.position.y+2,this.gameObject.transform.position.z);
-    
-    }
+        if(thirdPerson)
+        {
+            if(player.gameObject.transform.position.y<10)
+                this.gameObject.transform.position = new Vector3(player.gameObject.transform.position.x-15,player.gameObject.transform.position.y+3,this.gameObject.transform.position.z);
+            else 
+                this.gameObject.transform.position = new Vector3(player.gameObject.transform.position.x-17,player.gameObject.transform.position.y+2,this.gameObject.transform.position.z);
+        }
+        else
+        {
+
+            if(player.gameObject.transform.position.y<10)
+                    this.gameObject.transform.position = new Vector3(player.gameObject.transform.position.x+8,player.gameObject.transform.position.y+20,this.gameObject.transform.position.z);
+                else 
+                    this.gameObject.transform.position = new Vector3(player.gameObject.transform.position.x+8,player.gameObject.transform.position.y+5,this.gameObject.transform.position.z);
+
+        }
+}
 
 }
