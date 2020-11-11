@@ -1,9 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerScript : MonoBehaviour
 {
+    
+    public GameObject pauseMenuUI;
+    bool isPaused = false;
     private CharacterController controller;
     private Vector3 forward;
     private Vector3 side;
@@ -11,6 +16,8 @@ public class PlayerScript : MonoBehaviour
     public float speed;
     private int lane=1;
     bool down;
+    int score=0;
+    int hp =3;
 
 
     //Collectible Vars
@@ -40,10 +47,16 @@ public class PlayerScript : MonoBehaviour
     private int roadNum = 0;
     public GameObject[] roads;
 
+    public Text ScoreText;
+    public Text HpText;
+
 
     // Start is called before the first frame update
     void Start()
     {
+        int colorRandom = Random.Range(0,3);
+        this.gameObject.GetComponent<Renderer>().material.color=  new Color(colorRandom*80f/255f, 80f/255f, colorRandom*80f/255f); 
+
         //ROAD CODE
         for(int i =0;i<3;i++)
         {
@@ -58,11 +71,11 @@ public class PlayerScript : MonoBehaviour
         down = true;
 
         // Collectibles
-        hpInterval=10;
+        hpInterval=8;
         lastHPTime=0;
 
         lastObstacleTime=0;
-        obstacleInterval= 8;
+        obstacleInterval= 5;
 
         lastOrbTime=0;
         orbInterval= 3;
@@ -81,7 +94,7 @@ public class PlayerScript : MonoBehaviour
             roadX += 100;
             roadNum++;
         }
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space)&&Time.timeScale==1)
             {
                 if(down)
                 {
@@ -105,7 +118,7 @@ public class PlayerScript : MonoBehaviour
         GameObject[] hps = GameObject.FindGameObjectsWithTag("HP");
         foreach (GameObject ihp in hps)
         {
-            if(ihp.gameObject.transform.position.x+70<=this.gameObject.transform.position.x)
+            if(ihp.gameObject.transform.position.x+30<=this.gameObject.transform.position.x)
             {
                 Destroy(ihp.gameObject);
             }
@@ -113,7 +126,7 @@ public class PlayerScript : MonoBehaviour
         GameObject[] obs = GameObject.FindGameObjectsWithTag("OBSTACLE");
         foreach (GameObject iob in obs)
         {
-            if(iob.gameObject.transform.position.x+70<=this.gameObject.transform.position.x)
+            if(iob.gameObject.transform.position.x+30<=this.gameObject.transform.position.x)
             {
                 Destroy(iob.gameObject);
             }
@@ -121,23 +134,26 @@ public class PlayerScript : MonoBehaviour
         GameObject[] orbs = GameObject.FindGameObjectsWithTag("ORB");
         foreach (GameObject iorb in orbs)
         {
-            if(iorb.gameObject.transform.position.x+70<=this.gameObject.transform.position.x)
+            if(iorb.gameObject.transform.position.x+30<=this.gameObject.transform.position.x)
             {
                 Destroy(iorb.gameObject);
             }
         }   
         // Setting the auto forward speed
-        forward.x=speed;
-        controller.Move(forward*Time.fixedDeltaTime);
+        if(Time.timeScale==1)
+        {
+            forward.x=speed;
+            controller.Move(forward*Time.fixedDeltaTime);
+        }
 
 
-        if((Input.GetKeyDown(KeyCode.RightArrow)||Input.GetKeyDown(KeyCode.D))&&lane<2){
+        if((Input.GetKeyDown(KeyCode.RightArrow)||Input.GetKeyDown(KeyCode.D))&&lane<2&&Time.timeScale==1){
             side.z=-10;
             controller.Move(side);
             lane++;
 
         }
-        else if((Input.GetKeyDown(KeyCode.LeftArrow)||Input.GetKeyDown(KeyCode.A))&&lane>0){
+        else if((Input.GetKeyDown(KeyCode.LeftArrow)||Input.GetKeyDown(KeyCode.A))&&lane>0&&Time.timeScale==1){
             side.z=10;
             controller.Move(side);
             lane--;
@@ -206,6 +222,27 @@ public class PlayerScript : MonoBehaviour
                 colorRandom = Random.Range(0,3);
             }
         }
+
+        //Pause Menu
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if(isPaused)
+                Resume();
+            else
+                Pause();
+        }
+    }
+        void Resume()
+    {
+        pauseMenuUI.SetActive(false);
+        Time.timeScale = 1f;
+        isPaused = false;
+    }
+    void Pause()
+    {
+        pauseMenuUI.SetActive(true);
+        Time.timeScale = 0f;
+        isPaused = true;
     }
     void FixedUpdate() {
         // Setting the Forward to be called.
@@ -213,24 +250,71 @@ public class PlayerScript : MonoBehaviour
 
 
 
-        void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
         //   other.attachedRigidbody.useGravity = false;
         if (other.CompareTag("OBSTACLE"))
         {
+            if(hp>0)
+                hp--;
             Destroy(other.gameObject);
+
         }
 
         else if (other.CompareTag("HP"))
         {
+            if(hp<3)
+                hp++;
             Destroy(other.gameObject);
             // GetComponent<AudioSource>().Play();
         }
         else if (other.CompareTag("ORB"))
         {
             Destroy(other.gameObject);
+            Color32 colorPlayer= this.gameObject.GetComponent<Renderer>().material.color;
+            Color32 colorOrb= other.gameObject.GetComponent<Renderer>().material.color;
+            if(this.gameObject.transform.position.y<15)
+            {
+                if(colorPlayer.r==colorOrb.r)
+                {
+                    score+=10;
+                }
+                else{
+                    if(score>0)
+                        score-=5;
+                }
+            }
+            else{
+                if(colorPlayer.r!=colorOrb.r)
+                {
+                    score+=10;
+                }
+                else{
+                    if(score>0)
+                        score-=5;
+                }
+            }
             // GetComponent<AudioSource>().Play();
         }
+        ScoreText.text= "Score: "+score;
+        HpText.text="Health Points: "+hp;
+        speed=(5+(score/50)*5>speed)?5+(score/50)*5:speed;
+    }
+     public void quitButton()
+    {
+        Application.Quit();
+
+    }
+    public void resumeButton()
+    {
+        Resume();
+
+    }
+    public void restartButton()
+    {
+        SceneManager.LoadScene("SampleScene");
+        Resume();
+
     }
     
 }
