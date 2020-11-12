@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6978094465526095732}
   - component: {fileID: 6978094465526095731}
   m_Layer: 0
-  m_Name: HPCollectible
+  m_Name: HP
   m_TagString: HP
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

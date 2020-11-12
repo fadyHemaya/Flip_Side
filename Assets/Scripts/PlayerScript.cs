@@ -8,6 +8,7 @@ public class PlayerScript : MonoBehaviour
 {
     
     public GameObject pauseMenuUI;
+    public GameObject mainMenuUI;
     bool isPaused = false;
     private CharacterController controller;
     private Vector3 forward;
@@ -50,10 +51,16 @@ public class PlayerScript : MonoBehaviour
     public Text ScoreText;
     public Text HpText;
 
+    private void Awake()
+    {
+        Time.timeScale = 1f;
 
+    }
     // Start is called before the first frame update
     void Start()
     {
+        // Time.timeScale = 1f;
+        speed=10;
         int colorRandom = Random.Range(0,3);
         this.gameObject.GetComponent<Renderer>().material.color=  new Color(colorRandom*80f/255f, 80f/255f, colorRandom*80f/255f); 
 
@@ -67,7 +74,6 @@ public class PlayerScript : MonoBehaviour
         colorInterval=0;
 
         controller= GetComponent<CharacterController>();
-        speed =5;
         down = true;
 
         // Collectibles
@@ -106,6 +112,7 @@ public class PlayerScript : MonoBehaviour
                    controller.Move(upDown);
                 }
                 down=!down;
+                GetComponents<AudioSource>()[5].Play();
             }
         roads = GameObject.FindGameObjectsWithTag("ROAD");
         foreach (GameObject iroad in roads)
@@ -208,7 +215,7 @@ public class PlayerScript : MonoBehaviour
             lastOrbTime = (int)Time.time;
         }
 
-        //Chang Color
+        //Change Color
         if ((int)Time.time>=colorInterval+ 15) {
             Color32 colorCom = this.gameObject.GetComponent<Renderer>().material.color;
             int colorRandom = Random.Range(0,3);
@@ -221,10 +228,12 @@ public class PlayerScript : MonoBehaviour
                 }
                 colorRandom = Random.Range(0,3);
             }
+            GetComponents<AudioSource>()[6].Play();
         }
 
         //Pause Menu
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape)&&Time.timeScale!=0)
+
         {
             if(isPaused)
                 Resume();
@@ -257,6 +266,7 @@ public class PlayerScript : MonoBehaviour
         {
             if(hp>0)
                 hp--;
+            GetComponents<AudioSource>()[1].Play();
             Destroy(other.gameObject);
 
         }
@@ -265,12 +275,11 @@ public class PlayerScript : MonoBehaviour
         {
             if(hp<3)
                 hp++;
+            GetComponents<AudioSource>()[2].Play();
             Destroy(other.gameObject);
-            // GetComponent<AudioSource>().Play();
         }
         else if (other.CompareTag("ORB"))
         {
-            Destroy(other.gameObject);
             Color32 colorPlayer= this.gameObject.GetComponent<Renderer>().material.color;
             Color32 colorOrb= other.gameObject.GetComponent<Renderer>().material.color;
             if(this.gameObject.transform.position.y<15)
@@ -278,29 +287,36 @@ public class PlayerScript : MonoBehaviour
                 if(colorPlayer.r==colorOrb.r)
                 {
                     score+=10;
+                    GetComponents<AudioSource>()[3].Play();
+
                 }
                 else{
                     if(score>0)
                         score-=5;
+                    GetComponents<AudioSource>()[4].Play();
+
                 }
             }
             else{
                 if(colorPlayer.r!=colorOrb.r)
                 {
                     score+=10;
+                    GetComponents<AudioSource>()[3].Play();
                 }
                 else{
                     if(score>0)
                         score-=5;
+                        GetComponents<AudioSource>()[4].Play();
+
                 }
             }
-            // GetComponent<AudioSource>().Play();
+            Destroy(other.gameObject);
         }
         ScoreText.text= "Score: "+score;
         HpText.text="Health Points: "+hp;
-        speed=(5+(score/50)*5>speed)?5+(score/50)*5:speed;
+        speed=(10+(score/50)*10>speed)?10+(score/50)*10:speed;
     }
-     public void quitButton()
+    public void quitButton()
     {
         Application.Quit();
 
@@ -312,6 +328,13 @@ public class PlayerScript : MonoBehaviour
     }
     public void restartButton()
     {
+        SceneManager.LoadScene("SampleScene");
+        Resume();
+
+    }
+    public void startButton()
+    {
+        mainMenuUI.SetActive(false);
         SceneManager.LoadScene("SampleScene");
         Resume();
 
