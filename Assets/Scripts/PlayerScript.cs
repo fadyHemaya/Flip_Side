@@ -267,6 +267,35 @@ public class PlayerScript : MonoBehaviour
 
             Time.timeScale=1;
         }
+
+        // Cheats
+
+        if (Input.GetKeyDown(KeyCode.R)&&!isPaused)
+
+        {
+          Color32 colorCom = this.gameObject.GetComponent<Renderer>().material.color;
+            int colorRandom = Random.Range(0,3);
+            while(true) {
+                if(colorRandom*80!=colorCom.r)
+                {
+                   this.gameObject.GetComponent<Renderer>().material.color=  new Color(colorRandom*80f/255f, 80f/255f, colorRandom*80f/255f); 
+                    colorInterval = (int)Time.time;
+                    break;
+                }
+                colorRandom = Random.Range(0,3);
+            }
+            GetComponents<AudioSource>()[6].Play();  
+        }
+        if (Input.GetKeyDown(KeyCode.E)&&!isPaused){
+            if(hp<3)
+                hp++;
+            GetComponents<AudioSource>()[2].Play();
+        }
+        if (Input.GetKeyDown(KeyCode.Q)&&!isPaused){
+            score+=10;
+            GetComponents<AudioSource>()[3].Play();
+        }
+
     }
         void Resume()
     {
