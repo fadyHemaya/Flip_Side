@@ -6,6 +6,8 @@ public class OptionMenu : MonoBehaviour
 {
     bool mute;
     public GameObject mainMenuUI;
+    public GameObject creditUI;
+    public GameObject howUI;
 
     // Start is called before the first frame update
     void Start()
@@ -35,6 +37,18 @@ public class OptionMenu : MonoBehaviour
     {
         this.gameObject.SetActive(false);
         mainMenuUI.gameObject.SetActive(true);
+
+    }
+    public void howButton()
+    {
+        this.gameObject.SetActive(false);
+        howUI.gameObject.SetActive(true);
+
+    }
+    public void creditButton()
+    {
+        this.gameObject.SetActive(false);
+        creditUI.gameObject.SetActive(true);
 
     }
 }

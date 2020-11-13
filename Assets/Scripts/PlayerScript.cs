@@ -9,7 +9,12 @@ public class PlayerScript : MonoBehaviour
     
     public GameObject pauseMenuUI;
     public GameObject mainMenuUI;
-    bool isPaused = false;
+    public GameObject optionMenuUI;
+    public GameObject creditMenuUI;
+    public GameObject howMenuUI;
+    public GameObject overMenuUI;
+
+    bool isPaused = true;
     private CharacterController controller;
     private Vector3 forward;
     private Vector3 side;
@@ -60,8 +65,10 @@ public class PlayerScript : MonoBehaviour
     void Start()
     {
         // Time.timeScale = 1f;
-        speed=10;
+        speed=5;
         int colorRandom = Random.Range(0,3);
+        this.gameObject.transform.position= new Vector3(53.7f,2f,4.86f);
+
         this.gameObject.GetComponent<Renderer>().material.color=  new Color(colorRandom*80f/255f, 80f/255f, colorRandom*80f/255f); 
 
         //ROAD CODE
@@ -150,6 +157,7 @@ public class PlayerScript : MonoBehaviour
         if(Time.timeScale==1)
         {
             forward.x=speed;
+            isPaused=false;
             controller.Move(forward*Time.fixedDeltaTime);
         }
 
@@ -232,13 +240,32 @@ public class PlayerScript : MonoBehaviour
         }
 
         //Pause Menu
-        if (Input.GetKeyDown(KeyCode.Escape)&&Time.timeScale!=0)
+        if (Input.GetKeyDown(KeyCode.Escape)&&!mainMenuUI.activeSelf&&!optionMenuUI.activeSelf&&!creditMenuUI.activeSelf&&!howMenuUI.activeSelf&&!overMenuUI.activeSelf)
 
         {
             if(isPaused)
                 Resume();
             else
                 Pause();
+        }
+        if(Time.timeScale==1){
+            if(!GetComponents<AudioSource>()[7].isPlaying){
+                GetComponents<AudioSource>()[0].Stop();
+                GetComponents<AudioSource>()[7].Play();
+            }
+        }
+        else{
+            if(!GetComponents<AudioSource>()[0].isPlaying){
+                GetComponents<AudioSource>()[7].Stop();
+                GetComponents<AudioSource>()[0].Play();
+            }
+        }
+        if(isPaused){
+            Time.timeScale=0;
+        }
+        else{
+
+            Time.timeScale=1;
         }
     }
         void Resume()
@@ -264,6 +291,12 @@ public class PlayerScript : MonoBehaviour
         //   other.attachedRigidbody.useGravity = false;
         if (other.CompareTag("OBSTACLE"))
         {
+            if(hp==0)
+            {
+                overMenuUI.SetActive(true);
+                isPaused=true;
+                Time.timeScale=0;
+            }
             if(hp>0)
                 hp--;
             GetComponents<AudioSource>()[1].Play();
@@ -314,7 +347,7 @@ public class PlayerScript : MonoBehaviour
         }
         ScoreText.text= "Score: "+score;
         HpText.text="Health Points: "+hp;
-        speed=(10+(score/50)*10>speed)?10+(score/50)*10:speed;
+        speed=(5+(score/50)*5>speed)?5+(score/50)*5:speed;
     }
     public void quitButton()
     {
@@ -326,7 +359,7 @@ public class PlayerScript : MonoBehaviour
         Resume();
 
     }
-    public void restartButton()
+    public void MainMenuButton()
     {
         SceneManager.LoadScene("SampleScene");
         Resume();
@@ -337,6 +370,68 @@ public class PlayerScript : MonoBehaviour
         mainMenuUI.SetActive(false);
         SceneManager.LoadScene("SampleScene");
         Resume();
+
+    }
+
+    public void restartButton(){
+        roads = GameObject.FindGameObjectsWithTag("ROAD");
+        foreach (GameObject iroad in roads)
+        {
+            Destroy(iroad.gameObject);
+        }
+        GameObject[] hps = GameObject.FindGameObjectsWithTag("HP");
+        foreach (GameObject ihp in hps)
+        {
+            Destroy(ihp.gameObject);
+        } 
+        GameObject[] obs = GameObject.FindGameObjectsWithTag("OBSTACLE");
+        foreach (GameObject iob in obs)
+        {
+            Destroy(iob.gameObject);
+        } 
+        GameObject[] orbs = GameObject.FindGameObjectsWithTag("ORB");
+        foreach (GameObject iorb in orbs)
+        {
+            Destroy(iorb.gameObject);
+        }  
+        pauseMenuUI.SetActive(false);
+        overMenuUI.SetActive(false);
+        // Time.timeScale = 1f;
+        isPaused = false;
+        speed=5;
+        int colorRandom = Random.Range(0,3);
+        this.gameObject.transform.position= new Vector3(53.7f,2f,4.86f);
+
+        this.gameObject.GetComponent<Renderer>().material.color=  new Color(colorRandom*80f/255f, 80f/255f, colorRandom*80f/255f); 
+
+        //ROAD CODE
+        roadX=0;
+        roadNum=0;
+        score=0;
+        hp=3;
+        ScoreText.text= "Score: "+score;
+        HpText.text="Health Points: "+hp;
+        for(int i =0;i<3;i++)
+        {
+            Instantiate(road, new Vector3(roadX, 0, (float)4.7), Quaternion.identity);
+            Instantiate(road, new Vector3(roadX, 20, (float)4.7), Quaternion.identity);
+            roadX+=100;
+            
+        }
+        colorInterval=0;
+
+        controller= GetComponent<CharacterController>();
+        down = true;
+
+        // Collectibles
+        hpInterval=8;
+        lastHPTime=0;
+
+        lastObstacleTime=0;
+        obstacleInterval= 5;
+
+        lastOrbTime=0;
+        orbInterval= 3;
 
     }
     
